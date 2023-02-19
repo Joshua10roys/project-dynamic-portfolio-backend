@@ -1,15 +1,24 @@
 import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema({
-
-    name: {
-        type: String,
-        require: true
+const messageSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            require: true
+        },
+        message: {
+            type: String,
+            require: true
+        },
+        created: {
+            type: Date,
+            default: () => Date.now(),
+            immutable: true,
+        }
     },
-    message: {
-        type: String,
-        require: true
+    {
+        versionKey: false
     }
-});
+);
 
 export default mongoose.model("Message", messageSchema);

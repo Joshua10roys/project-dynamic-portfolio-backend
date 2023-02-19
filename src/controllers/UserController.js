@@ -1,15 +1,12 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import cookieParser from 'cookie-parser';
-
 import User from '../models/UserSchema.js';
 
 
 const create = async (req, res) => {
 
-    const { username, password } = req.body;
-
     try {
+        const { username, password } = req.body;
 
         const userFromDB = await User.findOne({ username });
         if (userFromDB) {
@@ -30,15 +27,12 @@ const create = async (req, res) => {
         res.status(400).send({ status: 400, msg: 'Something went wrong' });
         console.log(error.message);
     }
-
 }
 
 const login = async (req, res) => {
 
-    const { username, password } = req.body;
-    console.log(req.body);
-
     try {
+        const { username, password } = req.body;
 
         const userFromDB = await User.findOne({ username });
         if (!userFromDB) {
@@ -51,20 +45,8 @@ const login = async (req, res) => {
 
             if (isPasswordMatch) {
 
-                const token = jwt.sign({ _id: userFromDB._id }, process.env.PRV_KEY);
-                res
-                    .status(201)
-                    .cookie("token", token, {
-                        httpOnly: true,
-                        secure: true,
-                    })
-                    .send({
-                        status: 201,
-                        msg: "User login successful",
-                        token: token,
-                        username: username
-                    });
-
+                const token = jwt.sign({ _id: userFromDB._id }, process.env.PRV_KEY, { expiresIn: "2h" });
+                res.status(201).send({ status: 201, msg: "User login successful", token: token, username: username });
             } else {
 
                 res.status(401).send({ status: 401, msg: "Invalid Credentials" })
@@ -77,29 +59,22 @@ const login = async (req, res) => {
     }
 }
 
-const login0 = async (req, res) => {
+const deleteUser = async (req, res) => {
 
-    // console.log(req.headers);
+    try {
+        const { username } = req.body
+        let userFromDB = await User.findOne({ username });
 
-
-    // const token = jwt.sign({ _id: "asdfghjkl" }, process.env.PRV_KEY);
-    // res
-    //     .status(201)
-    //     .cookie("token", token, {
-    //         httpOnly: true,
-    //         // secure: true,
-    //         // signed: true
-    //     })
-    //     // res.json({
-    //     //     msg: "User login successful",
-    //     // })
-    //     .send({
-    //         status: 201,
-    //         msg: "User login successful",
-    //         token: token,
-    //     });
-
-
+        if (!userFromDB) {
+            res.status(404).send({ status: 404, msg: "User not Exists" })
+        } else {
+            await User.deleteOne({ username });
+            res.status(200).send({ status: 200, msg: "User Deleted Successfully" })
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
 }
 
-export { create, login, login0 };
+
+export { create, login, deleteUser };

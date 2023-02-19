@@ -1,11 +1,15 @@
 import express from 'express';
-import { create, login, login0 } from '../controllers/UserController.js';
+import { create, login, deleteUser } from '../controllers/UserController.js';
+import { authUser, checkToken } from '../middlewares/Auth.js';
 
 
 export const UserRouter = express.Router();
 
-UserRouter.post('/create', create)
 
-UserRouter.post('/login', login)
+UserRouter.get('/checkToken', checkToken);
 
-UserRouter.get('/coo', login0)
+UserRouter.post('/create', authUser, create);
+
+UserRouter.post('/login', login);
+
+UserRouter.delete('/delete', authUser, deleteUser);
