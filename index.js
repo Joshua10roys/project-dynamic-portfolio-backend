@@ -27,6 +27,6 @@ app.use('/delete', DeleteRouter);
 mongoose.set('strictQuery', true);
 await mongoose.connect(process.env.MONGOBD)
     .then(() => console.log("Connected to MongoDB"))
-    .then(() => app.listen(4000))
+    .then(() => app.listen(process.env.PORT))
     .then(() => console.log("Server Started"))
     .catch((error) => console.log(error.message))
